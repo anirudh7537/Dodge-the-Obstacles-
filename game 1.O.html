@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dodge the Obstacles</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        canvas { background: lightblue; display: block; margin: auto; }
+    </style>
+</head>
+<body>
+    <h1>Dodge the Obstacles</h1>
+    <canvas id="gameCanvas" width="400" height="500"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        let player = { x: 180, y: 450, width: 40, height: 40, speed: 5 };
+        let obstacles = [];
+        let gameOver = false;
+        
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowLeft" && player.x > 0) player.x -= player.speed;
+            if (e.key === "ArrowRight" && player.x < canvas.width - player.width) player.x += player.speed;
+        });
+        
+        function spawnObstacle() {
+            let size = Math.random() * 40 + 20;
+            obstacles.push({ x: Math.random() * (canvas.width - size), y: 0, width: size, height: size, speed: 3 });
+        }
+        
+        function updateGame() {
+            if (gameOver) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "red";
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            
+            ctx.fillStyle = "black";
+            for (let obs of obstacles) {
+                obs.y += obs.speed;
+                ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                if (obs.y + obs.height > player.y && obs.x < player.x + player.width && obs.x + obs.width > player.x) {
+                    gameOver = true;
+                    alert("Game Over! Refresh to try again.");
+                }
+            }
+            
+            obstacles = obstacles.filter(obs => obs.y < canvas.height);
+            requestAnimationFrame(updateGame);
+        }
+        
+        setInterval(spawnObstacle, 1000);
+        updateGame();
+    </script>
+</body>
+</html>
